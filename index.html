@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blake's Daily Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;background:#f0f4f8;color:#1a1a1a;padding:10px;}
+.card{background:#fff;border:1px solid #dde3ea;border-radius:8px;}
+.dash-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:8px;}
+.dash-logo{font-size:15px;font-weight:700;}
+.dash-title{font-size:16px;font-weight:700;text-align:center;flex:1;}
+.dash-right{min-width:150px;display:flex;gap:5px;justify-content:flex-end;align-items:center;}
+.btn{font-size:11px;padding:5px 10px;border:1px solid #ccc;border-radius:6px;cursor:pointer;background:#fff;color:#333;white-space:nowrap;}
+.btn:hover{background:#f5f5f5;}
+.btn-primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.btn-primary:hover{background:#333;}
+.btn-sm{font-size:10px;padding:2px 7px;}
+.btn-danger{border-color:#dc3545;color:#dc3545;}
+.btn-danger:hover{background:#fff5f5;}
+.status{font-size:11px;color:#888;padding:0 2px 6px;}
+.unmapped-banner{background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:11px;color:#856404;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;}
+.section-card{border:1px solid #dde3ea;border-radius:8px;overflow:hidden;background:#fff;}
+.sec-hdr{background:#c5d9f1;text-align:center;font-weight:700;padding:4px 6px;font-size:11px;color:#1a3a5c;border-bottom:1px solid #adc8e8;}
+.grp-hdr{background:#f2f5f7;font-size:10px;font-weight:700;color:#666;padding:2px 6px;border-bottom:1px solid #eee;border-top:1px solid #eee;margin-top:2px;}
+table{width:100%;border-collapse:collapse;table-layout:fixed;}
+th{font-size:9px;font-weight:700;padding:3px 4px;background:#f9fafb;color:#888;text-align:right;white-space:nowrap;border-bottom:1px solid #eee;}
+th:first-child{text-align:left;}
+td{padding:3px 4px;border-bottom:1px solid #f5f5f5;text-align:right;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+td:first-child{text-align:left;}
+tr:last-child td{border-bottom:none;}
+.tot-row td{font-weight:700;background:#e2efda;color:#276221;}
+.pct{display:inline-block;padding:1px 4px;border-radius:3px;font-weight:700;font-size:9px;}
+.pg{background:#c6efce;color:#276221;}
+.py2{background:#ffeb9c;color:#9c6500;}
+.pr{background:#ffc7ce;color:#9c0006;}
+.ps{background:#00b050;color:#fff;}
+.inv-wrap{border:1px solid #dde3ea;border-radius:8px;overflow:hidden;margin-bottom:6px;background:#fff;}
+.inv-hdr{background:#c5d9f1;text-align:center;font-weight:700;padding:4px 6px;font-size:11px;color:#1a3a5c;border-bottom:1px solid #adc8e8;}
+.page{display:none;}
+.page.active{display:block;}
+.settings-wrap{background:#fff;border:1px solid #dde3ea;border-radius:8px;padding:1rem;}
+.settings-tabs{display:flex;gap:6px;margin-bottom:1rem;}
+.stab{font-size:12px;padding:5px 14px;border:1px solid #ddd;border-radius:6px;cursor:pointer;background:#fff;color:#666;}
+.stab.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.map-table-wrap{border:1px solid #ddd;border-radius:8px;overflow:hidden;margin-bottom:1rem;}
+.map-table{width:100%;border-collapse:collapse;}
+.map-table th{font-size:11px;font-weight:700;padding:7px 10px;background:#f5f5f5;color:#666;text-align:left;border-bottom:1px solid #eee;}
+.map-table td{padding:5px 8px;border-bottom:1px solid #f5f5f5;font-size:11px;}
+.map-table tr:last-child td{border-bottom:none;}
+.map-table input,.map-table select{width:100%;padding:3px 6px;font-size:11px;border:1px solid #ddd;border-radius:4px;}
+.add-row{display:flex;gap:8px;align-items:center;padding:8px 10px;background:#f9f9f9;border-top:1px solid #eee;}
+.add-row input,.add-row select{flex:1;padding:5px 8px;font-size:11px;border:1px solid #ddd;border-radius:4px;}
+.modal-bg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;align-items:flex-start;justify-content:center;padding-top:40px;}
+.modal-bg.open{display:flex;}
+.modal{background:#fff;border-radius:10px;padding:1.25rem;width:380px;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+.modal h3{font-size:14px;font-weight:700;margin-bottom:0.75rem;}
+.modal-sec{font-size:11px;font-weight:700;color:#888;margin:0.75rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.03em;}
+.fld{margin-bottom:0.5rem;display:flex;align-items:center;gap:8px;}
+.fld label{font-size:11px;color:#666;min-width:150px;}
+.fld input{flex:1;padding:4px 7px;font-size:11px;border:1px solid #ddd;border-radius:4px;}
+.modal-btns{display:flex;gap:8px;margin-top:1rem;}
+.creds-wrap{background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:1.5rem;max-width:440px;margin:2rem auto;}
+.creds-wrap h3{font-size:15px;font-weight:700;margin-bottom:0.5rem;}
+.creds-fld{margin-bottom:0.75rem;}
+.creds-fld label{display:block;font-size:11px;color:#666;margin-bottom:3px;font-weight:600;}
+.creds-fld input{width:100%;padding:7px 10px;font-size:12px;border:1px solid #ddd;border-radius:6px;}
+</style>
+</head>
+<body>
+
+<div id="page-login" class="page active">
+  <div class="creds-wrap">
+    <h3>🦜 Blake's Daily Dashboard</h3>
+    <p style="font-size:12px;color:#888;margin-bottom:1.25rem;">Enter your Cin7 credentials to load live data.</p>
+    <div class="creds-fld"><label>Cin7 Account ID</label><input id="ci-acct" placeholder="24bc452b-2aca-4bad-..." /></div>
+    <div class="creds-fld"><label>Cin7 API Key</label><input id="ci-key" type="password" placeholder="Your API key" /></div>
+    <div style="display:flex;gap:8px;margin-top:1rem;">
+      <button class="btn btn-primary" onclick="connectLive()">Connect ↗</button>
+      <button class="btn" onclick="useDemoMode()">Use demo data</button>
+    </div>
+    <div id="conn-err" style="display:none;font-size:11px;color:#dc3545;margin-top:0.5rem;"></div>
+  </div>
+</div>
+
+<div id="page-dashboard" class="page">
+  <div class="card dash-header">
+    <div class="dash-logo">🦜 Blake's</div>
+    <div class="dash-title">Daily Dashboard — <span id="dash-date"></span></div>
+    <div class="dash-right">
+      <button class="btn" onclick="showPage('settings')"><i class="ti ti-settings"></i> Settings</button>
+      <button class="btn" onclick="openPlan()"><i class="ti ti-edit"></i> Plan</button>
+      <button class="btn btn-primary" onclick="doRefresh()"><i class="ti ti-refresh"></i> Refresh</button>
+      <button class="btn" onclick="logout()" style="color:#dc3545;border-color:#dc3545;">Sign out</button>
+    </div>
+  </div>
+
+  <div id="status-bar" class="status"></div>
+  <div id="unmapped-warn" class="unmapped-banner" style="display:none;"></div>
+
+  <div class="three-col">
+    <div class="section-card">
+      <div class="sec-hdr">Open Sales Orders</div>
+      <div class="grp-hdr">By Product</div>
+      <table><thead><tr><th style="width:36%">Product</th><th>Past Due</th><th>Current</th><th>Next Mo.</th></tr></thead>
+      <tbody id="op-prod"></tbody></table>
+      <div class="grp-hdr">By Customer</div>
+      <table><thead><tr><th style="width:36%">Channel</th><th>Past Due</th><th>Current</th><th>Next Mo.</th></tr></thead>
+      <tbody id="op-cust"></tbody></table>
+    </div>
+    <div class="section-card">
+      <div class="sec-hdr">Gross Sales — MTD</div>
+      <div class="grp-hdr">By Product</div>
+      <table><thead><tr><th style="width:30%">Product</th><th>Actuals</th><th id="mtd-ph">Plan</th><th>% Plan</th><th>% PY</th></tr></thead>
+      <tbody id="mtd-prod"></tbody></table>
+      <div class="grp-hdr">By Customer</div>
+      <table><thead><tr><th style="width:30%">Channel</th><th>Actuals</th><th>Plan</th><th>% Plan</th><th>% PY</th></tr></thead>
+      <tbody id="mtd-cust"></tbody></table>
+    </div>
+    <div class="section-card">
+      <div class="sec-hdr">Gross Sales — YTD</div>
+      <div class="grp-hdr">By Product</div>
+      <table><thead><tr><th style="width:30%">Product</th><th>Actuals</th><th>Year Plan</th><th>% Plan</th><th>% PY</th></tr></thead>
+      <tbody id="ytd-prod"></tbody></table>
+      <div class="grp-hdr">By Customer</div>
+      <table><thead><tr><th style="width:30%">Channel</th><th>Actuals</th><th>Plan</th><th>% Plan</th><th>% PY</th></tr></thead>
+      <tbody id="ytd-cust"></tbody></table>
+    </div>
+  </div>
+
+  <div class="inv-wrap">
+    <div class="inv-hdr">Inventory Valuation</div>
+    <div style="overflow-x:auto;">
+    <table id="inv-tbl" style="table-layout:auto;min-width:700px;">
+      <thead>
+        <tr>
+          <th rowspan="2" style="text-align:left;min-width:120px;">Product Category</th>
+          <th colspan="2" style="text-align:center;background:#dce6f1;color:#1a3a5c;">Total</th>
+          <th colspan="2" style="text-align:center;background:#dce6f1;color:#1a3a5c;">D2000</th>
+          <th colspan="2" style="text-align:center;background:#dce6f1;color:#1a3a5c;">Amazon</th>
+          <th colspan="2" style="text-align:center;background:#dce6f1;color:#1a3a5c;">YBF</th>
+          <th colspan="2" style="text-align:center;background:#dce6f1;color:#1a3a5c;">RJW</th>
+          <th colspan="2" style="text-align:center;background:#dce6f1;color:#1a3a5c;">Shipbob</th>
+        </tr>
+        <tr id="inv-sub-hdr"></tr>
+      </thead>
+      <tbody id="inv-body"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<div id="page-settings" class="page">
+  <div class="settings-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div style="font-size:15px;font-weight:700;">Settings</div>
+      <button class="btn" onclick="showPage('dashboard')">← Back to dashboard</button>
+    </div>
+    <div class="settings-tabs">
+      <button class="stab active" onclick="showSettingsTab('customers')">Customer mapping</button>
+      <button class="stab" onclick="showSettingsTab('skus')">SKU mapping</button>
+    </div>
+    <div id="stab-customers">
+      <p style="font-size:11px;color:#888;margin-bottom:0.75rem;">Map each Cin7 customer name to a sales channel. Unmapped customers appear as "DTC".</p>
+      <div class="map-table-wrap">
+        <table class="map-table">
+          <thead><tr><th style="width:55%;">Customer name (exact match from Cin7)</th><th>Channel</th><th style="width:50px;"></th></tr></thead>
+          <tbody id="cust-map-body"></tbody>
+        </table>
+        <div class="add-row">
+          <input id="new-cust-name" placeholder="Exact customer name from Cin7..." style="flex:2;" />
+          <select id="new-cust-chan">
+            <option value="">Select channel...</option>
+            <option>Retail</option><option>Amazon</option><option>Third Party Ecom</option>
+            <option>Airlines</option><option>Alt Channel</option><option>Box</option>
+            <option>Club</option><option>Walmart</option><option>DTC</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="addCustomer()">+ Add</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm" onclick="exportMapping('customer')"><i class="ti ti-download"></i> Export CSV</button>
+        <button class="btn btn-sm" onclick="document.getElementById('import-cust').click()"><i class="ti ti-upload"></i> Import CSV</button>
+        <input id="import-cust" type="file" accept=".csv" style="display:none;" onchange="importMapping(event,'customer')" />
+      </div>
+    </div>
+    <div id="stab-skus" style="display:none;">
+      <p style="font-size:11px;color:#888;margin-bottom:0.75rem;">Map each SKU to a product category. Unmapped SKUs are excluded from totals.</p>
+      <div class="map-table-wrap">
+        <table class="map-table">
+          <thead><tr><th style="width:40%;">SKU</th><th>Category</th><th style="width:50px;"></th></tr></thead>
+          <tbody id="sku-map-body"></tbody>
+        </table>
+        <div class="add-row">
+          <input id="new-sku" placeholder="SKU..." style="flex:1;" />
+          <select id="new-sku-cat">
+            <option value="">Select category...</option>
+            <option>Crispy Treats</option><option>Breakfast Bars</option><option>Chewy Bars</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="addSku()">+ Add</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm" onclick="exportMapping('sku')"><i class="ti ti-download"></i> Export CSV</button>
+        <button class="btn btn-sm" onclick="document.getElementById('import-sku').click()"><i class="ti ti-upload"></i> Import CSV</button>
+        <input id="import-sku" type="file" accept=".csv" style="display:none;" onchange="importMapping(event,'sku')" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="plan-modal">
+  <div class="modal">
+    <h3>Edit plan numbers</h3>
+    <p style="font-size:11px;color:#888;">Update at the start of each month. Saved in your browser.</p>
+    <div class="modal-sec">MTD — By Product</div>
+    <div class="fld"><label>Crispy Treats</label><input id="p-crispy" type="number"/></div>
+    <div class="fld"><label>Breakfast Bars</label><input id="p-bars" type="number"/></div>
+    <div class="fld"><label>Chewy Bars</label><input id="p-chewy" type="number"/></div>
+    <div class="modal-sec">MTD — By Channel</div>
+    <div class="fld"><label>Retail</label><input id="p-retail" type="number"/></div>
+    <div class="fld"><label>Amazon</label><input id="p-amazon" type="number"/></div>
+    <div class="fld"><label>Third Party Ecom</label><input id="p-3p" type="number"/></div>
+    <div class="fld"><label>Airlines</label><input id="p-airlines" type="number"/></div>
+    <div class="fld"><label>Alt Channel</label><input id="p-alt" type="number"/></div>
+    <div class="fld"><label>Box</label><input id="p-box" type="number"/></div>
+    <div class="fld"><label>Club</label><input id="p-club" type="number"/></div>
+    <div class="fld"><label>Walmart</label><input id="p-walmart" type="number"/></div>
+    <div class="fld"><label>DTC</label><input id="p-dtc" type="number"/></div>
+    <div class="modal-sec">YTD — Year Plan by Product</div>
+    <div class="fld"><label>Crispy Treats</label><input id="p-ytd-crispy" type="number"/></div>
+    <div class="fld"><label>Breakfast Bars</label><input id="p-ytd-bars" type="number"/></div>
+    <div class="fld"><label>Chewy Bars</label><input id="p-ytd-chewy" type="number"/></div>
+    <div class="modal-sec">YTD — Year Plan by Channel</div>
+    <div class="fld"><label>Retail</label><input id="p-ytd-retail" type="number"/></div>
+    <div class="fld"><label>Amazon</label><input id="p-ytd-amazon" type="number"/></div>
+    <div class="fld"><label>Third Party Ecom</label><input id="p-ytd-3p" type="number"/></div>
+    <div class="fld"><label>Airlines</label><input id="p-ytd-airlines" type="number"/></div>
+    <div class="fld"><label>Alt Channel</label><input id="p-ytd-alt" type="number"/></div>
+    <div class="fld"><label>Box</label><input id="p-ytd-box" type="number"/></div>
+    <div class="fld"><label>Club</label><input id="p-ytd-club" type="number"/></div>
+    <div class="fld"><label>Walmart</label><input id="p-ytd-walmart" type="number"/></div>
+    <div class="fld"><label>DTC</label><input id="p-ytd-dtc" type="number"/></div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" onclick="savePlan()">Save</button>
+      <button class="btn" onclick="closePlan()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var LIVE=false,CIN7_ACCT='',CIN7_KEY='';
+var EXCLUDED=['blake\'s seed based','amazon seller','shopify'];
+var CATS=['Crispy Treats','Breakfast Bars','Chewy Bars'];
+var CHANNELS=['Retail','Amazon','Third Party Ecom','Airlines','Alt Channel','Box','Club','Walmart','DTC'];
+var INV_LOCS=['D2000','Amazon','YBF','RJW','Shipbob'];
+
+var DEFAULT_CUST_MAP={'KeHE Dist. - Miami':'Retail','KeHE Dist. - Phoenix':'Retail','KeHE Dist. - Stockton':'Retail','Misfits / Imperfect':'Third Party Ecom','Thrive Market Batesville':'Third Party Ecom','Thrive Market Reno':'Third Party Ecom','UNFI - York':'Retail','Michael Lewis Company':'Airlines','Michael Lewis Company - West':'Airlines','KeHE Dist. - Aurora':'Retail','KeHE Dist. - Dallas':'Retail','KeHE Dist. - North East':'Retail','KeHE Dist. - Romeoville':'Retail','Thrive Market Hanover':'Third Party Ecom','HY-VEE, INC.':'Retail','Faire':'Retail','Simpalo Snacks, LLC':'Box','The FruitGuys, LLC':'Box','Vistar (Cust)':'Retail','Airline Emporium':'Airlines','Certco, Inc.':'Retail','Hungryroot, Inc':'Third Party Ecom','Minimus Distribution':'Alt Channel','Thrive Market':'Third Party Ecom','Walmart USA':'Walmart','Metropolitan Coffee House ':'Retail','Mixt Pantry':'Alt Channel','Costco':'Club','KeHe Dist - Portland':'Retail','KeHE Dist. - Chino':'Retail','KeHE Dist. - Douglasville':'Retail','KeHE Dist. - Lehigh Valley':'Retail','UNFI - Howell':'Retail','UNFI - Hudson Valley':'Retail','UNFI - Ridgefield':'Retail','Kroger':'Retail','Sierra Trading Post':'Alt Channel','UNFI - Racine':'Retail','Delicious Vegan Ventures':'Box','Oakfield Farms':'Airlines','UNFI - Greenwood':'Retail','UNFI - Moreno Valley':'Retail','Grocery Outlet':'Alt Channel','KeHE Dist. - Bloomington':'Retail','UNFI - Rocklin':'Retail','WorkPerks':'Alt Channel','Nicks Snack Pack':'Box','Morgan Friedenberg':'Box','KEHE':'Retail','Two Crunchy Moms LLC':'Box','Hillsborough City School District':'Alt Channel','Performance Supply':'Alt Channel','Boys & Girls Club ':'Alt Channel','Bridge Creek Football Booster Club ':'Alt Channel'};
+var DEFAULT_SKU_MAP={'RC107VAR-24':'Crispy Treats','CB105VAR-24':'Chewy Bars','RC103BIR-24':'Crispy Treats','BB103CIN-24':'Breakfast Bars','BB104VAR-24':'Breakfast Bars','BB102CHO-24':'Breakfast Bars','CB101APP-24':'Chewy Bars','CB102CHO-24':'Chewy Bars','BB101BLU-24':'Breakfast Bars','BB101BLU-30':'Breakfast Bars','RC103BIR-36':'Crispy Treats','RC102CHO-36':'Crispy Treats','RC102CHO-24':'Crispy Treats','BB103CIN-30':'Breakfast Bars','RC103BIR':'Crispy Treats','CB103BIR-24':'Chewy Bars','BB103CIN':'Breakfast Bars','BB101BLU':'Breakfast Bars','RC102CHO':'Crispy Treats','BB102CHO':'Breakfast Bars','BB103CIN-B':'Breakfast Bars','CB101APP':'Chewy Bars','CB102CHO':'Chewy Bars','CB102CHO-B':'Chewy Bars','CB103BIR':'Chewy Bars','RC104PUM':'Crispy Treats','RC106ORI':'Crispy Treats','RC101STR':'Crispy Treats','BB105VAR-24':'Breakfast Bars','BB104SPR':'Breakfast Bars','BB101BLU-CASE':'Breakfast Bars','BB103CIN-CASE':'Breakfast Bars','RC103BIR-CASE':'Crispy Treats'};
+var DEFAULT_PLAN={crispy:220774,bars:336676,chewy:198901,retail:61673,amazon:239237,'3p':251421,airlines:68737,alt:0,box:9000,club:0,walmart:88800,dtc:46483,ytdCrispy:2912222,ytdBars:3573050,ytdChewy:2690599,ytdRetail:867634,ytdAmazon:3041142,ytd3p:3550029,ytdAirlines:1003327,ytdAlt:135000,ytdBox:108000,ytdClub:591600,ytdWalmart:337440,ytdDtc:533799};
+
+var demoData={
+  mtd:[{sku:'RC102CHO-24',customer:'KeHE Dist. - Dallas',total:13200},{sku:'RC103BIR-24',customer:'Thrive Market',total:8800},{sku:'BB101BLU-24',customer:'Walmart USA',total:55000},{sku:'BB103CIN-24',customer:'KeHE Dist. - Aurora',total:33000},{sku:'CB101APP-24',customer:'Misfits / Imperfect',total:22000},{sku:'RC107VAR-24',customer:'Michael Lewis Company',total:6600},{sku:'BB104VAR-24',customer:'Simpalo Snacks, LLC',total:9900},{sku:'CB102CHO-24',customer:'Thrive Market Hanover',total:16500},{sku:'RC102CHO',customer:'UNFI - York',total:22000},{sku:'BB103CIN',customer:'HY-VEE, INC.',total:19800},{sku:'CB103BIR',customer:'Faire',total:11000},{sku:'RC101STR',customer:'Certco, Inc.',total:8250},{sku:'BB101BLU',customer:'Grocery Outlet',total:12100},{sku:'CB101APP',customer:'Hungryroot, Inc',total:10450}],
+  open:[{sku:'RC102CHO-24',customer:'KeHE Dist. - Dallas',total:5726,shipBy:'2026-04-30'},{sku:'BB101BLU-24',customer:'Walmart USA',total:9731,shipBy:'2026-05-15'},{sku:'CB101APP-24',customer:'Misfits / Imperfect',total:8348,shipBy:'2026-05-20'},{sku:'RC103BIR-24',customer:'Thrive Market',total:6000,shipBy:'2026-06-01'},{sku:'BB103CIN-24',customer:'KeHE Dist. - Aurora',total:13200,shipBy:'2026-06-15'}],
+  inv:[{sku:'RC102CHO-24',location:'Distribution2000',onHand:3345,stockValue:36047},{sku:'RC103BIR-24',location:'Distribution2000',onHand:7427,stockValue:76103},{sku:'BB101BLU-24',location:'Distribution2000',onHand:0,stockValue:0},{sku:'BB103CIN-24',location:'Distribution2000',onHand:3900,stockValue:45368},{sku:'CB101APP-24',location:'Distribution2000',onHand:2755,stockValue:23914},{sku:'RC102CHO-24',location:'Amazon FBA',onHand:346,stockValue:3788},{sku:'BB101BLU-24',location:'Amazon FBA',onHand:231,stockValue:2808},{sku:'BB103CIN-24',location:'Amazon FBA',onHand:473,stockValue:5346},{sku:'BB101BLU',location:'RJW',onHand:1656,stockValue:20665},{sku:'BB103CIN',location:'RJW',onHand:1784,stockValue:20536},{sku:'RC102CHO',location:'Your Bar Factory',onHand:0,stockValue:4406},{sku:'RC103BIR',location:'Shipbob',onHand:500,stockValue:12000}]
+};
+
+function loadCustMap(){try{var s=localStorage.getItem('blakes_cust_map');return s?JSON.parse(s):Object.assign({},DEFAULT_CUST_MAP);}catch(e){return Object.assign({},DEFAULT_CUST_MAP);}}
+function saveCustMap(m){localStorage.setItem('blakes_cust_map',JSON.stringify(m));}
+function loadSkuMap(){try{var s=localStorage.getItem('blakes_sku_map');return s?JSON.parse(s):Object.assign({},DEFAULT_SKU_MAP);}catch(e){return Object.assign({},DEFAULT_SKU_MAP);}}
+function saveSkuMap(m){localStorage.setItem('blakes_sku_map',JSON.stringify(m));}
+function loadPlan(){try{return JSON.parse(localStorage.getItem('blakes_plan_v5'))||DEFAULT_PLAN;}catch(e){return DEFAULT_PLAN;}}
+
+function fmt(n){if(!n||n===0)return '$\u00a0\u00a0-';return '$'+Math.round(n).toLocaleString();}
+function fmtN(n){if(!n||n===0)return '-';return Math.round(n).toLocaleString();}
+function pct(a,p){if(!p||p===0)return '<span class="pct py2">n/a</span>';var v=Math.round(a/p*100);var c=v>=100?'ps':v>=75?'pg':v>=40?'py2':'pr';return'<span class="pct '+c+'">'+v+'%</span>';}
+
+function mapChannel(customer){
+  if(!customer)return'DTC';
+  var c=customer.trim();
+  if(EXCLUDED.some(function(x){return c.toLowerCase()===x.toLowerCase();}))return null;
+  if(c.toLowerCase().includes('shopify')||c.toLowerCase().includes('amazon seller'))return null;
+  var m=loadCustMap();return m[c]||'DTC';
+}
+function mapSku(sku){var m=loadSkuMap();return m[sku]||null;}
+
+function buildSalesRollup(lines){
+  var byCat={},byChan={};
+  CATS.forEach(function(c){byCat[c]=0;});CHANNELS.forEach(function(c){byChan[c]=0;});
+  lines.forEach(function(l){var cat=mapSku(l.sku),chan=mapChannel(l.customer);if(cat)byCat[cat]+=l.total;if(chan)byChan[chan]+=l.total;});
+  return{byCat:byCat,byChan:byChan};
+}
+
+function buildOpenRollup(lines){
+  var now=new Date(),curS=new Date(now.getFullYear(),now.getMonth(),1),curE=new Date(now.getFullYear(),now.getMonth()+1,0);
+  var byCat={},byChan={};
+  CATS.forEach(function(c){byCat[c]={past:0,cur:0,next:0};});CHANNELS.forEach(function(c){byChan[c]={past:0,cur:0,next:0};});
+  lines.forEach(function(l){
+    var cat=mapSku(l.sku),chan=mapChannel(l.customer),ship=l.shipBy?new Date(l.shipBy):null;
+    var b=ship&&ship<curS?'past':ship&&ship>curE?'next':'cur';
+    if(cat&&byCat[cat])byCat[cat][b]+=l.total;if(chan&&byChan[chan])byChan[chan][b]+=l.total;
+  });
+  return{byCat:byCat,byChan:byChan};
+}
+
+function buildInvRollup(products){
+  var byCat={};
+  CATS.forEach(function(c){byCat[c]={total:{oh:0,sv:0}};INV_LOCS.forEach(function(l){byCat[c][l]={oh:0,sv:0};});});
+  products.forEach(function(p){
+    var cat=mapSku(p.sku);if(!cat)return;
+    var loc=p.location||'';
+    var ml=loc.toLowerCase().includes('distribution')||loc==='D2000'?'D2000':loc.toLowerCase().includes('amazon')?'Amazon':loc.toLowerCase().includes('your bar')||loc==='YBF'?'YBF':loc==='RJW'||loc.toLowerCase().includes('rjw')?'RJW':loc.toLowerCase().includes('shipbob')?'Shipbob':null;
+    byCat[cat].total.oh+=p.onHand||0;byCat[cat].total.sv+=parseFloat(p.stockValue)||0;
+    if(ml&&byCat[cat][ml]){byCat[cat][ml].oh+=p.onHand||0;byCat[cat][ml].sv+=parseFloat(p.stockValue)||0;}
+  });
+  return byCat;
+}
+
+function renderDash(mtd,ytd,open,inv,demo){
+  var plan=loadPlan(),now=new Date();
+  document.getElementById('dash-date').textContent=now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('mtd-ph').textContent=now.toLocaleDateString('en-US',{month:'long'})+' Plan';
+  var md=buildSalesRollup(mtd),yd=buildSalesRollup(ytd),od=buildOpenRollup(open),id=buildInvRollup(inv);
+
+  // Unmapped check
+  var cm=loadCustMap(),sm=loadSkuMap(),uc=[],us=[];
+  mtd.concat(ytd).forEach(function(l){if(l.customer&&!cm[l.customer.trim()]&&!EXCLUDED.some(function(x){return l.customer.trim().toLowerCase()===x;}))if(!uc.includes(l.customer))uc.push(l.customer);});
+  mtd.concat(ytd).forEach(function(l){if(l.sku&&!sm[l.sku])if(!us.includes(l.sku))us.push(l.sku);});
+  var wb=document.getElementById('unmapped-warn');
+  if(uc.length||us.length){wb.style.display='';wb.innerHTML='⚠️ Unmapped items — go to <strong>Settings</strong> to add them. '+(uc.length?'Customers: '+uc.slice(0,3).join(', ')+(uc.length>3?' (+'+( uc.length-3)+' more)':'')+'  ':'')+(us.length?'SKUs: '+us.slice(0,3).join(', ')+(us.length>3?' (+'+( us.length-3)+' more)':''):'');}
+  else wb.style.display='none';
+
+  var cpk={Retail:'retail',Amazon:'amazon','Third Party Ecom':'3p',Airlines:'airlines','Alt Channel':'alt',Box:'box',Club:'club',Walmart:'walmart',DTC:'dtc'};
+  var ytdCpk={Retail:'ytdRetail',Amazon:'ytdAmazon','Third Party Ecom':'ytd3p',Airlines:'ytdAirlines','Alt Channel':'ytdAlt',Box:'ytdBox',Club:'ytdClub',Walmart:'ytdWalmart',DTC:'ytdDtc'};
+
+  function salesRows(data,planKeys,isYtd){
+    var pCat=isYtd?[plan.ytdCrispy,plan.ytdBars,plan.ytdChewy]:[plan.crispy,plan.bars,plan.chewy];
+    var pr=CATS.map(function(c,i){var a=data.byCat[c]||0,pk=pCat[i]||0;return'<tr><td>'+c+'</td><td>'+fmt(a)+'</td><td>'+fmt(pk)+'</td><td>'+pct(a,pk)+'</td><td>-</td></tr>';});
+    var pa=CATS.reduce(function(s,c){return s+(data.byCat[c]||0);},0),pp=pCat.reduce(function(a,b){return a+b;},0);
+    pr.push('<tr class="tot-row"><td>Total</td><td>'+fmt(pa)+'</td><td>'+fmt(pp)+'</td><td>'+pct(pa,pp)+'</td><td>-</td></tr>');
+    var cr=CHANNELS.map(function(c){var a=data.byChan[c]||0,pk=plan[isYtd?ytdCpk[c]:cpk[c]]||0;return'<tr><td>'+c+'</td><td>'+fmt(a)+'</td><td>'+fmt(pk)+'</td><td>'+pct(a,pk)+'</td><td>-</td></tr>';});
+    var ca=CHANNELS.reduce(function(s,c){return s+(data.byChan[c]||0);},0),cp=CHANNELS.reduce(function(s,c){return s+(plan[isYtd?ytdCpk[c]:cpk[c]]||0);},0);
+    cr.push('<tr class="tot-row"><td>Total</td><td>'+fmt(ca)+'</td><td>'+fmt(cp)+'</td><td>'+pct(ca,cp)+'</td><td>-</td></tr>');
+    return{pr:pr,cr:cr};
+  }
+
+  var ms=salesRows(md,null,false),ys=salesRows(yd,null,true);
+  document.getElementById('mtd-prod').innerHTML=ms.pr.join('');
+  document.getElementById('mtd-cust').innerHTML=ms.cr.join('');
+  document.getElementById('ytd-prod').innerHTML=ys.pr.join('');
+  document.getElementById('ytd-cust').innerHTML=ys.cr.join('');
+
+  var opPR=CATS.map(function(c){var d=od.byCat[c]||{past:0,cur:0,next:0};return'<tr><td>'+c+'</td><td>'+fmt(d.past)+'</td><td>'+fmt(d.cur)+'</td><td>'+fmt(d.next)+'</td></tr>';});
+  var opPT={past:0,cur:0,next:0};CATS.forEach(function(c){var d=od.byCat[c];opPT.past+=d.past;opPT.cur+=d.cur;opPT.next+=d.next;});
+  opPR.push('<tr class="tot-row"><td>Total</td><td>'+fmt(opPT.past)+'</td><td>'+fmt(opPT.cur)+'</td><td>'+fmt(opPT.next)+'</td></tr>');
+  document.getElementById('op-prod').innerHTML=opPR.join('');
+  var opCR=CHANNELS.map(function(c){var d=od.byChan[c]||{past:0,cur:0,next:0};return'<tr><td>'+c+'</td><td>'+fmt(d.past)+'</td><td>'+fmt(d.cur)+'</td><td>'+fmt(d.next)+'</td></tr>';});
+  var opCT={past:0,cur:0,next:0};CHANNELS.forEach(function(c){var d=od.byChan[c];opCT.past+=d.past;opCT.cur+=d.cur;opCT.next+=d.next;});
+  opCR.push('<tr class="tot-row"><td>Total</td><td>'+fmt(opCT.past)+'</td><td>'+fmt(opCT.cur)+'</td><td>'+fmt(opCT.next)+'</td></tr>');
+  document.getElementById('op-cust').innerHTML=opCR.join('');
+
+  document.getElementById('inv-sub-hdr').innerHTML=(['Total'].concat(INV_LOCS)).map(function(){return'<th style="text-align:right;font-size:9px;">On Hand</th><th style="text-align:right;font-size:9px;">Stock Value</th>';}).join('');
+  var invR=CATS.map(function(c){var d=id[c];return'<tr><td>'+c+'</td><td>'+fmtN(d.total.oh)+'</td><td>'+fmt(d.total.sv)+'</td>'+INV_LOCS.map(function(l){return'<td>'+fmtN(d[l].oh)+'</td><td>'+fmt(d[l].sv)+'</td>';}).join('')+'</tr>';});
+  var tOH=CATS.reduce(function(s,c){return s+id[c].total.oh;},0),tSV=CATS.reduce(function(s,c){return s+id[c].total.sv;},0);
+  invR.push('<tr class="tot-row"><td>SKU Total</td><td>'+fmtN(tOH)+'</td><td>'+fmt(tSV)+'</td>'+INV_LOCS.map(function(l){var oh=CATS.reduce(function(s,c){return s+id[c][l].oh;},0),sv=CATS.reduce(function(s,c){return s+id[c][l].sv;},0);return'<td>'+fmtN(oh)+'</td><td>'+fmt(sv)+'</td>';}).join('')+'</tr>');
+  document.getElementById('inv-body').innerHTML=invR.join('');
+  document.getElementById('status-bar').textContent=demo?'Demo mode — showing sample data. Connect Cin7 credentials to load live inventory.':'Live inventory from Cin7 · Updated '+new Date().toLocaleTimeString()+' · Sales: connect backend for live data';
+}
+
+function renderSettingsCustomers(){
+  var m=loadCustMap();
+  document.getElementById('cust-map-body').innerHTML=Object.keys(m).sort().map(function(k){return'<tr><td>'+k+'</td><td>'+m[k]+'</td><td><button class="btn btn-sm btn-danger" onclick="deleteCust(\''+k.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')" aria-label="Remove">×</button></td></tr>';}).join('')||'<tr><td colspan="3" style="text-align:center;color:#aaa;padding:1rem;">No mappings</td></tr>';
+}
+function renderSettingsSkus(){
+  var m=loadSkuMap();
+  document.getElementById('sku-map-body').innerHTML=Object.keys(m).sort().map(function(k){return'<tr><td style="font-family:monospace">'+k+'</td><td>'+m[k]+'</td><td><button class="btn btn-sm btn-danger" onclick="deleteSku(\''+k+'\')" aria-label="Remove">×</button></td></tr>';}).join('')||'<tr><td colspan="3" style="text-align:center;color:#aaa;padding:1rem;">No mappings</td></tr>';
+}
+function addCustomer(){var n=document.getElementById('new-cust-name').value.trim(),c=document.getElementById('new-cust-chan').value;if(!n||!c)return;var m=loadCustMap();m[n]=c;saveCustMap(m);document.getElementById('new-cust-name').value='';document.getElementById('new-cust-chan').value='';renderSettingsCustomers();}
+function deleteCust(k){var m=loadCustMap();delete m[k];saveCustMap(m);renderSettingsCustomers();}
+function addSku(){var s=document.getElementById('new-sku').value.trim().toUpperCase(),c=document.getElementById('new-sku-cat').value;if(!s||!c)return;var m=loadSkuMap();m[s]=c;saveSkuMap(m);document.getElementById('new-sku').value='';document.getElementById('new-sku-cat').value='';renderSettingsSkus();}
+function deleteSku(k){var m=loadSkuMap();delete m[k];saveSkuMap(m);renderSettingsSkus();}
+function exportMapping(type){var m=type==='customer'?loadCustMap():loadSkuMap();var h=type==='customer'?'Customer,Channel\n':'SKU,Category\n';var r=Object.keys(m).map(function(k){return'"'+k+'","'+m[k]+'"';}).join('\n');var b=new Blob([h+r],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=type+'_mapping.csv';a.click();}
+function importMapping(e,type){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){var lines=ev.target.result.split('\n').slice(1);var m=type==='customer'?loadCustMap():loadSkuMap();lines.forEach(function(l){var p=l.replace(/"/g,'').split(',');if(p.length>=2&&p[0].trim())m[p[0].trim()]=p[1].trim();});if(type==='customer'){saveCustMap(m);renderSettingsCustomers();}else{saveSkuMap(m);renderSettingsSkus();}};r.readAsText(f);}
+
+function showPage(p){
+  document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('page-'+p).classList.add('active');
+  if(p==='settings')showSettingsTab('customers');
+}
+function showSettingsTab(t){
+  document.getElementById('stab-customers').style.display=t==='customers'?'':'none';
+  document.getElementById('stab-skus').style.display=t==='skus'?'':'none';
+  document.querySelectorAll('.stab').forEach(function(b,i){b.classList.toggle('active',['customers','skus'][i]===t);});
+  if(t==='customers')renderSettingsCustomers();else renderSettingsSkus();
+}
+
+function openPlan(){
+  var p=loadPlan();
+  var keys={crispy:'crispy',bars:'bars',chewy:'chewy',retail:'retail',amazon:'amazon','3p':'3p',airlines:'airlines',alt:'alt',box:'box',club:'club',walmart:'walmart',dtc:'dtc','ytd-crispy':'ytdCrispy','ytd-bars':'ytdBars','ytd-chewy':'ytdChewy','ytd-retail':'ytdRetail','ytd-amazon':'ytdAmazon','ytd-3p':'ytd3p','ytd-airlines':'ytdAirlines','ytd-alt':'ytdAlt','ytd-box':'ytdBox','ytd-club':'ytdClub','ytd-walmart':'ytdWalmart','ytd-dtc':'ytdDtc'};
+  Object.keys(keys).forEach(function(k){var el=document.getElementById('p-'+k);if(el)el.value=p[keys[k]]||0;});
+  document.getElementById('plan-modal').classList.add('open');
+}
+function closePlan(){document.getElementById('plan-modal').classList.remove('open');}
+function savePlan(){
+  var p={};
+  var keys={crispy:'crispy',bars:'bars',chewy:'chewy',retail:'retail',amazon:'amazon','3p':'3p',airlines:'airlines',alt:'alt',box:'box',club:'club',walmart:'walmart',dtc:'dtc','ytd-crispy':'ytdCrispy','ytd-bars':'ytdBars','ytd-chewy':'ytdChewy','ytd-retail':'ytdRetail','ytd-amazon':'ytdAmazon','ytd-3p':'ytd3p','ytd-airlines':'ytdAirlines','ytd-alt':'ytdAlt','ytd-box':'ytdBox','ytd-club':'ytdClub','ytd-walmart':'ytdWalmart','ytd-dtc':'ytdDtc'};
+  Object.keys(keys).forEach(function(k){p[keys[k]]=+(document.getElementById('p-'+k).value)||0;});
+  localStorage.setItem('blakes_plan_v5',JSON.stringify(p));
+  closePlan();doRefresh();
+}
+
+function useDemoMode(){showPage('dashboard');renderDash(demoData.mtd,demoData.mtd,demoData.open,demoData.inv,true);}
+function connectLive(){
+  var a=document.getElementById('ci-acct').value.trim(),k=document.getElementById('ci-key').value.trim();
+  if(!a||!k){document.getElementById('conn-err').textContent='Please enter both fields.';document.getElementById('conn-err').style.display='';return;}
+  CIN7_ACCT=a;CIN7_KEY=k;LIVE=true;
+  localStorage.setItem('blakes_cin7_acct',a);
+  localStorage.setItem('blakes_cin7_key',k);
+  showPage('dashboard');loadLiveData();
+}
+function autoLogin(){
+  var a=localStorage.getItem('blakes_cin7_acct'),k=localStorage.getItem('blakes_cin7_key');
+  if(a&&k){CIN7_ACCT=a;CIN7_KEY=k;LIVE=true;showPage('dashboard');loadLiveData();}
+}
+function logout(){
+  localStorage.removeItem('blakes_cin7_acct');localStorage.removeItem('blakes_cin7_key');
+  CIN7_ACCT='';CIN7_KEY='';LIVE=false;showPage('login');
+}
+function loadLiveData(){
+  document.getElementById('status-bar').textContent='Loading inventory from Cin7...';
+  fetch('https://inventory.dearsystems.com/ExternalApi/v2/ref/productavailability?Page=1&Limit=250',{
+    headers:{'api-auth-accountid':CIN7_ACCT,'api-auth-applicationkey':CIN7_KEY}
+  }).then(function(r){return r.json();}).then(function(d){
+    var prods=(d.ProductAvailabilityList||[]).map(function(p){return{sku:p.SKU,name:p.Name,location:p.Location,onHand:p.OnHand||0,stockValue:parseFloat(p.StockOnHand)||0};});
+    renderDash([],[],demoData.open,prods,false);
+  }).catch(function(){useDemoMode();});
+}
+function doRefresh(){if(LIVE)loadLiveData();else renderDash(demoData.mtd,demoData.mtd,demoData.open,demoData.inv,true);}
+autoLogin();
+</script>
+</body>
+</html>
