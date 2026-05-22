@@ -11,13 +11,19 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
       - name: Install dependencies
         run: npm install @upstash/redis node-fetch@2
-      - name: List files
-        run: ls -la && ls -la scripts || echo "no scripts folder"
+      - name: Show files
+        run: |
+          echo "=== ROOT ==="
+          ls -la
+          echo "=== SCRIPTS ==="
+          ls -la scripts/ || echo "NO SCRIPTS FOLDER"
       - name: Run sync
         env:
           CIN7_ACCOUNT_ID: ${{ secrets.CIN7_ACCOUNT_ID }}
