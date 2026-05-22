@@ -16,22 +16,12 @@ jobs:
           node-version: '18'
       - name: Install dependencies
         run: npm install @upstash/redis node-fetch@2
+      - name: List files
+        run: ls -la && ls -la scripts || echo "no scripts folder"
       - name: Run sync
         env:
           CIN7_ACCOUNT_ID: ${{ secrets.CIN7_ACCOUNT_ID }}
           CIN7_API_KEY: ${{ secrets.CIN7_API_KEY }}
           KV_REST_API_URL: ${{ secrets.KV_REST_API_URL }}
           KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN }}
-        run: node $GITHUB_WORKSPACE/scripts/sync.js
-- name: Run sync
-        env:
-          CIN7_ACCOUNT_ID: ${{ secrets.CIN7_ACCOUNT_ID }}
-          CIN7_API_KEY: ${{ secrets.CIN7_API_KEY }}
-          KV_REST_API_URL: ${{ secrets.KV_REST_API_URL }}
-          KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN }}
-        run: |
-          echo "Files in workspace:"
-          ls -la $GITHUB_WORKSPACE
-          echo "Scripts folder:"
-          ls -la $GITHUB_WORKSPACE/scripts
-          node $GITHUB_WORKSPACE/scripts/sync.js
+        run: node scripts/sync.js
